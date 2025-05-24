@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý sở thú</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/toastify-js@1.12.0/src/toastify.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+    
+</head>
+<body>
+    <div class="header">
+        <h1 class="text-4xl font-bold text-green-600"><i class="fas fa-paw"></i> Quản lý sở thú</h1>
+        <p class="text-gray-600">Ứng dụng quản lý động vật với giao diện hiện đại và sinh động</p>
+        <i class="fas fa-moon theme-toggle" onclick="toggleTheme()"></i>
+    </div>
+    <div class="container">
+        <div class="form">
+            <h3 class="text-2xl font-semibold mb-4">Thêm động vật</h3>
+            <select id="type" class="gsap-animate">
+                <option value="SuTuChauPhi">Sư Tử Châu Phi</option>
+                <option value="VoiAnDo">Voi Ấn Độ</option>
+                <option value="SuTuAnh">Sư Tử Anh</option>
+                <option value="VoiChauPhi">Voi Châu Phi</option>
+            </select>
+            <input type="text" id="name" placeholder="Tên động vật" class="gsap-animate">
+            <input type="number" id="age" placeholder="Tuổi" min="0" class="gsap-animate">
+            <input type="number" id="weight" placeholder="Cân nặng (kg)" step="0.01" min="0" class="gsap-animate">
+            <input type="number" id="portion" placeholder="Khẩu phần ăn" min="0" class="gsap-animate">
+            <input type="number" id="price" placeholder="Giá mỗi khẩu phần" min="0" class="gsap-animate">
+            <button onclick="addAnimal()">Thêm động vật</button>
+        </div>
+        <div class="list">
+            <h3 class="text-2xl font-semibold mb-4">Danh sách động vật</h3>
+            <ul id="animalList"></ul>
+        </div>
+        <div class="output">
+            <h3 class="text-2xl font-semibold mb-4">Chi tiết động vật</h3>
+            <pre id="output">Chọn một động vật để xem chi tiết</pre>
+            <div>
+                <button onclick="triggerAction('keu')"><i class="fas fa-volume-up"></i> Kêu</button>
+                <button onclick="triggerAction('an')"><i class="fas fa-utensils"></i> Ăn</button>
+                <button onclick="triggerAction('diChuyen')"><i class="fas fa-running"></i> Di chuyển</button>
+            </div>
+        </div>
+    </div>
+    <div class="footer">
+        <p>Bài tập lập trình hướng đối tượng - Quản lý sở thú</p>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js@1.12.0/src/toastify.min.js"></script>
+    <script>
+        // GSAP Animation
+        gsap.from('.gsap-animate', {
+            opacity: 0,
+            y: 20,
+            duration: 1,
+            stagger: 0.2,
+            ease: 'power2.out'
+        });
+
+        // Theme toggle
+        function toggleTheme() {
+            document.body.classList.toggle('dark');
+            const icon = document.querySelector('.theme-toggle');
+            icon.classList.toggle('fa-moon');
+            icon.classList.toggle('fa-sun');
+            gsap.to('.header, .form, .list, .output', {
+                backgroundColor: document.body.classList.contains('dark') ? 'rgba(31, 41, 55, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                duration: 0.5
+            });
+        }
+
+        // Lớp cơ sở DongVat
+        class DongVat {
+            constructor(ten, tuoi, canNang, khauPhan, giaKhauPhan) {
+                this.ten = ten;
+                this.tuoi = tuoi;
+                this.canNang = canNang;
+                this.khauPhan = khauPhan;
+                this.giaKhauPhan = giaKhauPhan;
+            }
+            tongTienAn() {
+                return this.khauPhan * this.giaKhauPhan;
+            }
+            toString() {
+                return `Tên: ${this.ten}, Tuổi: ${this.tuoi}, Cân nặng: ${this.canNang.toFixed(2)}kg\n` +
+                       `Khẩu phần: ${this.khauPhan}, Giá mỗi khẩu phần: ${this.giaKhauPhan}\n` +
+                       `Tổng tiền ăn mỗi ngày: ${this.tongTienAn()}`;
+            }
+            keu() { return ''; }
+            an() { return ''; }
+            diChuyen() { return ''; }
+            loai() { return ''; }
+        }
+
+        // Lớp SuTuChauPhi
+        class SuTuChauPhi extends DongVat {
+            keu() { return `${this.ten} gầm gừ như sư tử châu Phi!`; }
+            an() { return `${this.ten} đang ăn thịt`; }
+            diChuyen() { return `${this.ten} chạy nhanh trong chuồng!`; }
+            loai() { return 'SuTuChauPhi'; }
+        }
+
+        // Lớp VoiAnDo
+        class VoiAnDo extends DongVat {
+            keu() { return `${this.ten} rống lên như voi Ấn Độ!`; }
+            an() { return `${this.ten} đang dùng vòi để ăn`; }
+            diChuyen() { return `${this.ten} đi chậm chạp trong chuồng voi`; }
+            loai() { return 'VoiAnDo'; }
+        }
+
+        // Lớp SuTuAnh
+        class SuTuAnh extends DongVat {
+            keu() { return `${this.ten} gầm gừ kiểu quý tộc Anh!`; }
+            an() { return `${this.ten} đang thưởng thức bữa ăn với dao nĩa!`; }
+            diChuyen() { return `${this.ten} đi oai phong quanh chuồng như vua!`; }
+            loai() { return 'SuTuAnh'; }
+        }
+
+        // Lớp VoiChauPhi
+        class VoiChauPhi extends DongVat {
+            keu() { return `${this.ten} rống lên vang cả khu rừng châu Phi!`; }
+            an() { return `${this.ten} đang dùng vòi quấn thức ăn bỏ vào miệng`; }
+            diChuyen() { return `${this.ten} bước đi chậm rãi nhưng đầy uy lực!`; }
+            loai() { return 'VoiChauPhi'; }
+        }
+
+        // Danh sách động vật
+        let animals = [];
+        let selectedIndex = -1;
+
+        function addAnimal() {
+            const type = document.getElementById('type').value;
+            const name = document.getElementById('name').value.trim();
+            const age = parseInt(document.getElementById('age').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            const portion = parseInt(document.getElementById('portion').value);
+            const price = parseInt(document.getElementById('price').value);
+
+            // Kiểm tra đầu vào
+            if (!name || isNaN(age) || age < 0 || isNaN(weight) || weight < 0 ||
+                isNaN(portion) || portion < 0 || isNaN(price) || price < 0) {
+                Toastify({
+                    text: "Vui lòng nhập đầy đủ và đúng định dạng!",
+                    duration: 3000,
+                    backgroundColor: "#ef4444",
+                }).showToast();
+                return;
+            }
+
+            // Tạo động vật
+            let animal;
+            switch (type) {
+                case 'SuTuChauPhi':
+                    animal = new SuTuChauPhi(name, age, weight, portion, price);
+                    break;
+                case 'VoiAnDo':
+                    animal = new VoiAnDo(name, age, weight, portion, price);
+                    break;
+                case 'SuTuAnh':
+                    animal = new SuTuAnh(name, age, weight, portion, price);
+                    break;
+                case 'VoiChauPhi':
+                    animal = new VoiChauPhi(name, age, weight, portion, price);
+                    break;
+            }
+
+            animals.push(animal);
+            const li = document.createElement('li');
+            let imgSrc;
+            switch (type) {
+                case 'SuTuChauPhi':
+                    imgSrc = 'images/sutuChauPhi.jpg';
+                    break;
+                case 'VoiAnDo':
+                    imgSrc = 'images/voiAnDo.jpg';
+                    break;
+                case 'SuTuAnh':
+                    imgSrc = 'images/sutuAnh.jpg';
+                    break;
+                case 'VoiChauPhi':
+                    imgSrc = 'images/voiChauPhi.jpg';
+                    break;
+                default:
+                    imgSrc = 'https://via.placeholder.com/40';
+            }
+            console.log(`Adding animal: ${type}, imgSrc: ${imgSrc}`);
+            li.innerHTML = `
+                <img class="animal-img animal-img-${type}" src="${imgSrc}" alt="${type}" onerror="this.src='https://via.placeholder.com/40'; console.log('Image failed to load: ${imgSrc}')">
+                <span>${name}</span>
+            `;
+            li.onclick = () => {
+                selectedIndex = animals.length - 1;
+                updateAnimalList();
+                showDetails(selectedIndex);
+                gsap.from('#output', { opacity: 0, y: 20, duration: 0.5 });
+            };
+            document.getElementById('animalList').appendChild(li);
+            gsap.from(li, { opacity: 0, x: -20, duration: 0.5 });
+            Toastify({
+                text: `Đã thêm ${name}!`,
+                duration: 3000,
+                backgroundColor: "#16a34a",
+            }).showToast();
+
+            // Xóa form
+            document.getElementById('name').value = '';
+            document.getElementById('age').value = '';
+            document.getElementById('weight').value = '';
+            document.getElementById('portion').value = '';
+            document.getElementById('price').value = '';
+        }
+
+        function updateAnimalList() {
+            const list = document.getElementById('animalList');
+            Array.from(list.children).forEach((li, index) => {
+                li.classList.toggle('selected', index === selectedIndex);
+            });
+        }
+
+        function showDetails(index) {
+            if (index >= 0 && index < animals.length) {
+                const animal = animals[index];
+                let imgSrc;
+                switch (animal.loai()) {
+                    case 'SuTuChauPhi':
+                        imgSrc = 'images/sutuChauPhi.jpg';
+                        break;
+                    case 'VoiAnDo':
+                        imgSrc = 'images/voiAnDo.jpg';
+                        break;
+                    case 'SuTuAnh':
+                        imgSrc = 'images/sutuAnh.jpg';
+                        break;
+                    case 'VoiChauPhi':
+                        imgSrc = 'images/voiChauPhi.jpg';
+                        break;
+                    default:
+                        imgSrc = 'https://via.placeholder.com/40';
+                }
+                document.getElementById('output').innerHTML = `
+                    <img src="${imgSrc}" style="width: 60px; height: 60px; border-radius: 50%; margin-bottom: 10px;" onerror="this.src='https://via.placeholder.com/40'">
+                    <br>${animal.toString()}\nLoại: ${animal.loai()}
+                `;
+            } else {
+                document.getElementById('output').textContent = 'Chọn một động vật để xem chi tiết';
+            }
+        }
+
+        function triggerAction(action) {
+            if (selectedIndex < 0 || selectedIndex >= animals.length) {
+                Toastify({
+                    text: "Vui lòng chọn một động vật!",
+                    duration: 3000,
+                    backgroundColor: "#ef4444",
+                }).showToast();
+                return;
+            }
+            const animal = animals[selectedIndex];
+            let output = '';
+            if (action === 'keu') output = animal.keu();
+            else if (action === 'an') output = animal.an();
+            else if (action === 'diChuyen') output = animal.diChuyen();
+            document.getElementById('output').innerHTML += `\n${output}`;
+            gsap.from('#output', { opacity: 0, y: 10, duration: 0.3 });
+        }
+    </script>
+</body>
+</html>
